@@ -7,9 +7,6 @@ RSpec.describe OpportunityService do
   let(:params) { {} }
 
   describe "#search_opportunities" do
-    let!(:opportunities) { create_list(:opportunity, 3, client: client) }
-    let!(:unique_opportunity) { create(:opportunity, title: "Unique Title", client: client) }
-
     around(:each, :caching) do |example|
       original_store = Rails.cache
       Rails.cache = ActiveSupport::Cache::MemoryStore.new
@@ -18,34 +15,28 @@ RSpec.describe OpportunityService do
     end
 
     context "without search params" do
+      let!(:opportunities) { create_list(:opportunity, 3, client: client) }
+
       it "returns all opportunities" do
         result = service.search_opportunities
-        expect(result.length).to eq(4)
+        expect(result.length).to eq(3)
+        expect(result.total_pages).to eq(1)
+        expect(result.total_count).to eq(3)
       end
     end
 
     context "with search query" do
-      context "searching by title" do
-        let(:params) { { query: "Unique" } }
-
-        it "returns matching opportunities" do
-          result = service.search_opportunities
-          expect(result.length).to eq(1)
-          expect(result.first.title).to eq("Unique Title")
-        end
-      end
-
       context "searching by client name" do
         let!(:unique_client) { create(:client, name: "Unique Company") }
-        let!(:client_opportunity) { create(:opportunity, client: unique_client) }
+        let!(:client_opportunities) { create_list(:opportunity, 2, client: unique_client) }
 
         context "with exact client name" do
           let(:params) { { query: "Unique Company" } }
 
           it "returns opportunities from matching client" do
             result = service.search_opportunities
-            expect(result.length).to eq(1)
-            expect(result.first.client.name).to eq("Unique Company")
+            expect(result.length).to eq(2)
+            expect(result.map(&:client).map(&:name).uniq).to eq(["Unique Company"])
           end
         end
 
@@ -54,14 +45,25 @@ RSpec.describe OpportunityService do
 
           it "returns opportunities from clients with matching name" do
             result = service.search_opportunities
-            expect(result.length).to eq(2) # One from unique_opportunity and one from client_opportunity
-            expect(result.map(&:client).map(&:name)).to include("Unique Company")
+            expect(result.length).to eq(2)
+            expect(result.map(&:client).map(&:name).uniq).to eq(["Unique Company"])
+          end
+        end
+
+        context "with case-insensitive client name" do
+          let(:params) { { query: "unique company" } }
+
+          it "returns opportunities from clients with matching name regardless of case" do
+            result = service.search_opportunities
+            expect(result.length).to eq(2)
+            expect(result.map(&:client).map(&:name).uniq).to eq(["Unique Company"])
           end
         end
       end
     end
 
     context "with pagination" do
+      let!(:opportunities) { create_list(:opportunity, 3, client: client) }
       let(:params) { { page: 1, per_page: 2 } }
 
       it "returns paginated results" do
@@ -72,6 +74,8 @@ RSpec.describe OpportunityService do
     end
 
     context "with caching", :caching do
+      let!(:opportunities) { create_list(:opportunity, 3, client: client) }
+
       it "caches the results" do
         expect(Rails.cache).to receive(:fetch).and_call_original
         service.search_opportunities
@@ -89,6 +93,8 @@ RSpec.describe OpportunityService do
     end
 
     context 'when caching is disabled via configuration' do
+      let!(:opportunities) { create_list(:opportunity, 3, client: client) }
+
       around(:each) do |example|
         original_enable_cache = Rails.configuration.enable_cache
         Rails.configuration.enable_cache = false
@@ -98,7 +104,7 @@ RSpec.describe OpportunityService do
 
       it 'returns all opportunities without caching' do
         result = service.search_opportunities
-        expect(result.length).to eq(4)
+        expect(result.length).to eq(3)
       end
     end
   end
@@ -163,7 +169,7 @@ RSpec.describe OpportunityService do
       it "returns error message" do
         result = service.apply_for_opportunity(opportunity, job_seeker)
         expect(result[:success]).to be false
-        expect(result[:error]).to eq('You have already applied for this opportunity')
+        expect(result[:error]).to eq("You have already applied for this opportunity")
       end
     end
 

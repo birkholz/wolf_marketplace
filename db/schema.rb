@@ -13,6 +13,7 @@
 ActiveRecord::Schema[8.0].define(version: 2025_05_21_181240) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+  enable_extension "pg_trgm"
 
   create_table "clients", force: :cascade do |t|
     t.string "name"
@@ -21,6 +22,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_21_181240) do
     t.string "email"
     t.string "password_digest"
     t.index ["email"], name: "index_clients_on_email", unique: true
+    t.index ["name"], name: "index_clients_name_trgm", opclass: :gin_trgm_ops, using: :gin
   end
 
   create_table "job_applications", force: :cascade do |t|
@@ -49,6 +51,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_21_181240) do
     t.datetime "updated_at", null: false
     t.integer "client_id", null: false
     t.index ["client_id"], name: "index_opportunities_on_client_id"
+    t.index ["description"], name: "index_opportunities_description_trgm", opclass: :gin_trgm_ops, using: :gin
+    t.index ["title"], name: "index_opportunities_title_trgm", opclass: :gin_trgm_ops, using: :gin
   end
 
   add_foreign_key "job_applications", "job_seekers"

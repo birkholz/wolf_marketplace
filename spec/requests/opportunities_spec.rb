@@ -39,38 +39,49 @@ RSpec.describe "Opportunities API", type: :request do
         expect(json_response["meta"]["total_pages"]).to eq(2)
       end
 
-      it "supports search by title" do
-        create(:opportunity, title: "Unique Title", client: client)
+      context "search functionality" do
+        let!(:unique_client) { create(:client, name: "Unique Company") }
+        let!(:client_opportunity) { create(:opportunity, title: "Special Position", description: "Looking for a unique individual", client: unique_client) }
 
-        get "/api/opportunities", params: { query: "Unique" }
+        it "finds opportunities by client name" do
+          get "/api/opportunities", params: { query: "Unique Company" }
 
-        expect(response).to have_http_status(:ok)
-        expect(json_response["opportunities"].length).to eq(1)
-        expect(json_response["opportunities"].first["title"]).to eq("Unique Title")
-      end
+          expect(response).to have_http_status(:ok)
+          expect(json_response["opportunities"].length).to eq(1)
+          expect(json_response["opportunities"].first["client"]["name"]).to eq("Unique Company")
+        end
 
-      it "supports search by client name" do
-        unique_client = create(:client, name: "Unique Company")
-        create(:opportunity, client: unique_client)
-        create(:opportunity, client: client) # This one should not be included
+        it "finds opportunities by partial client name" do
+          get "/api/opportunities", params: { query: "Unique" }
 
-        get "/api/opportunities", params: { query: "Unique Company" }
+          expect(response).to have_http_status(:ok)
+          expect(json_response["opportunities"].length).to eq(1)
+          expect(json_response["opportunities"].first["client"]["name"]).to eq("Unique Company")
+        end
 
-        expect(response).to have_http_status(:ok)
-        expect(json_response["opportunities"].length).to eq(1)
-        expect(json_response["opportunities"].first["client"]["name"]).to eq("Unique Company")
-      end
+        it "finds opportunities by title" do
+          get "/api/opportunities", params: { query: "Special" }
 
-      it "supports search by partial client name" do
-        unique_client = create(:client, name: "Unique Company")
-        create(:opportunity, client: unique_client)
-        create(:opportunity, client: client) # This one should not be included
+          expect(response).to have_http_status(:ok)
+          expect(json_response["opportunities"].length).to eq(1)
+          expect(json_response["opportunities"].first["title"]).to eq("Special Position")
+        end
 
-        get "/api/opportunities", params: { query: "Unique" }
+        it "finds opportunities by description" do
+          get "/api/opportunities", params: { query: "unique individual" }
 
-        expect(response).to have_http_status(:ok)
-        expect(json_response["opportunities"].length).to eq(1)
-        expect(json_response["opportunities"].first["client"]["name"]).to eq("Unique Company")
+          expect(response).to have_http_status(:ok)
+          expect(json_response["opportunities"].length).to eq(1)
+          expect(json_response["opportunities"].first["description"]).to eq("Looking for a unique individual")
+        end
+
+        it "is case insensitive" do
+          get "/api/opportunities", params: { query: "unique company" }
+
+          expect(response).to have_http_status(:ok)
+          expect(json_response["opportunities"].length).to eq(1)
+          expect(json_response["opportunities"].first["client"]["name"]).to eq("Unique Company")
+        end
       end
     end
   end

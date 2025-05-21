@@ -50,4 +50,9 @@ Rails.application.configure do
 
   # Raise error when a before_action's only/except options reference missing actions.
   config.action_controller.raise_on_missing_callback_actions = true
+
+  Rails.configuration.enable_cache = true
+
+  # Configure ActiveJob to use the test adapter
+  config.active_job.queue_adapter = :test
 end

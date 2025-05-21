@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+  </head>
+  <body>
+    <h1>New Job Application</h1>
+    <p>
+      A new application has been submitted for your opportunity "<%= @opportunity.title %>".
+    </p>
+
+    <h2>Applicant Details:</h2>
+    <p>
+      <strong>Name:</strong> <%= @job_seeker.name %><br>
+      <strong>Email:</strong> <%= @job_seeker.email %>
+    </p>
+
+    <h2>Opportunity Details:</h2>
+    <p>
+      <strong>Title:</strong> <%= @opportunity.title %><br>
+      <strong>Description:</strong> <%= @opportunity.description %><br>
+      <strong>Salary:</strong> <%= number_to_currency(@opportunity.salary) %>
+    </p>
+
+    <p>
+      You can view all applications for this opportunity in your dashboard.
+    </p>
+  </body>
+</html>

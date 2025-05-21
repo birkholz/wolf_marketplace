@@ -1,3 +1,5 @@
+[![CI](https://github.com/birkholz/wolf_marketplace/actions/workflows/ci.yml/badge.svg)](https://github.com/birkholz/wolf_marketplace/actions/workflows/ci.yml)
+
 # Wolf Marketplace API
 
 ## API Endpoints

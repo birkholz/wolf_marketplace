@@ -5,15 +5,15 @@ Rails.application.routes.draw do
 
   namespace :api do
     # Client authentication
-    post '/client/login', to: 'client_sessions#create'
-    delete '/client/logout', to: 'client_sessions#destroy'
+    post "/client/login", to: "client_sessions#create"
+    delete "/client/logout", to: "client_sessions#destroy"
 
     # Job seeker authentication
-    post '/job-seeker/login', to: 'job_seeker_sessions#create'
-    delete '/job-seeker/logout', to: 'job_seeker_sessions#destroy'
+    post "/job-seeker/login", to: "job_seeker_sessions#create"
+    delete "/job-seeker/logout", to: "job_seeker_sessions#destroy"
 
     # Opportunities routes
-    resources :opportunities, only: [:index, :create] do
+    resources :opportunities, only: [ :index, :create ] do
       member do
         post :apply
       end

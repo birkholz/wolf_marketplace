@@ -10,13 +10,10 @@ class ApplicationController < ActionController::Base
   private
 
   def current_client
-    @current_client ||= begin
-      token = AuthenticationService.extract_token_from_header(request.headers['Authorization'])
-      return nil unless token
-
-      user_id = AuthenticationService.decode_token(token)
-      Client.find_by(id: user_id)
-    end
+    return @current_client if defined?(@current_client)
+    token = AuthenticationService.extract_token_from_header(request.headers["Authorization"])
+    user_id = AuthenticationService.decode_token(token)
+    @current_client = user_id && Client.find_by(id: user_id)
   end
 
   def client_signed_in?
@@ -30,13 +27,10 @@ class ApplicationController < ActionController::Base
   end
 
   def current_job_seeker
-    @current_job_seeker ||= begin
-      token = AuthenticationService.extract_token_from_header(request.headers['Authorization'])
-      return nil unless token
-
-      user_id = AuthenticationService.decode_token(token)
-      JobSeeker.find_by(id: user_id)
-    end
+    return @current_job_seeker if defined?(@current_job_seeker)
+    token = AuthenticationService.extract_token_from_header(request.headers["Authorization"])
+    user_id = AuthenticationService.decode_token(token)
+    @current_job_seeker = user_id && JobSeeker.find_by(id: user_id)
   end
 
   def job_seeker_signed_in?

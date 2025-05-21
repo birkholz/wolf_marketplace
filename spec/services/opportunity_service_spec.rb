@@ -36,7 +36,7 @@ RSpec.describe OpportunityService do
           it "returns opportunities from matching client" do
             result = service.search_opportunities
             expect(result.length).to eq(2)
-            expect(result.map(&:client).map(&:name).uniq).to eq(["Unique Company"])
+            expect(result.map(&:client).map(&:name).uniq).to eq([ "Unique Company" ])
           end
         end
 
@@ -46,7 +46,7 @@ RSpec.describe OpportunityService do
           it "returns opportunities from clients with matching name" do
             result = service.search_opportunities
             expect(result.length).to eq(2)
-            expect(result.map(&:client).map(&:name).uniq).to eq(["Unique Company"])
+            expect(result.map(&:client).map(&:name).uniq).to eq([ "Unique Company" ])
           end
         end
 
@@ -56,7 +56,7 @@ RSpec.describe OpportunityService do
           it "returns opportunities from clients with matching name regardless of case" do
             result = service.search_opportunities
             expect(result.length).to eq(2)
-            expect(result.map(&:client).map(&:name).uniq).to eq(["Unique Company"])
+            expect(result.map(&:client).map(&:name).uniq).to eq([ "Unique Company" ])
           end
         end
       end
@@ -176,13 +176,13 @@ RSpec.describe OpportunityService do
     context "when the application fails to save" do
       before do
         allow_any_instance_of(JobApplication).to receive(:save).and_return(false)
-        allow_any_instance_of(JobApplication).to receive(:errors).and_return(double(full_messages: ['Error message']))
+        allow_any_instance_of(JobApplication).to receive(:errors).and_return(double(full_messages: [ "Error message" ]))
       end
 
       it "returns error message" do
         result = service.apply_for_opportunity(opportunity, job_seeker)
         expect(result[:success]).to be false
-        expect(result[:errors]).to eq(['Error message'])
+        expect(result[:errors]).to eq([ "Error message" ])
       end
     end
   end

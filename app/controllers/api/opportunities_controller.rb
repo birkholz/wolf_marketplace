@@ -1,18 +1,17 @@
 module Api
   class OpportunitiesController < ApplicationController
-    before_action :authenticate_client!, only: [:create]
-    before_action :authenticate_job_seeker!, only: [:apply]
-    before_action :set_opportunity, only: [:apply]
+    before_action :authenticate_client!, only: [ :create ]
+    before_action :authenticate_job_seeker!, only: [ :apply ]
+    before_action :set_opportunity, only: [ :apply ]
 
     def index
-      @opportunities = opportunity_service.search_opportunities
-
+      opportunities = opportunity_service.search_opportunities
       render json: {
-        opportunities: @opportunities.as_json(include: { client: { only: [:id, :name] } }),
+        opportunities: opportunities.as_json(include: { client: { only: [ :id, :name ] } }, only: [ :id, :title, :description, :salary, :client_id ]),
         meta: {
-          current_page: @opportunities.current_page,
-          total_pages: @opportunities.total_pages,
-          total_count: @opportunities.total_count
+          current_page: opportunities.current_page,
+          total_pages: opportunities.total_pages,
+          total_count: opportunities.total_count
         }
       }
     end
